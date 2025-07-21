@@ -1,16 +1,15 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.request.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(of = {"id"})
 public class ItemRequest {
-    int id;
+    Integer id;
     String description;
-    User requestor; // или user
+    Integer requestor; // или user
     LocalDateTime created;
 }
