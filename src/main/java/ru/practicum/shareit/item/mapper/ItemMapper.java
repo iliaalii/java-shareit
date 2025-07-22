@@ -1,12 +1,12 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
-@Component
+@UtilityClass
 public class ItemMapper {
-    public static ItemDto toItemDto(Item item) {
+    public ItemDto toItemDto(Item item) {
         if (item == null) return null;
 
         return new ItemDto(
@@ -17,7 +17,7 @@ public class ItemMapper {
         );
     }
 
-    public static Item toItem(ItemDto itemDto, int userId) {
+    public Item toItem(ItemDto itemDto, int userId) {
         if (itemDto == null) return null;
 
         Item item = new Item();
@@ -29,7 +29,7 @@ public class ItemMapper {
         return item;
     }
 
-    public static void updateUser(Item item, ItemDto itemDto) {
+    public void updateUser(Item item, ItemDto itemDto) {
         if (itemDto.getName() != null) {
             item.setName(itemDto.getName());
         }

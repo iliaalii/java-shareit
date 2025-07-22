@@ -6,10 +6,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = {"id"})
 public class Item {
-    Integer id;
-    String name;
-    String description;
-    boolean available;
-    Integer owner;
-    Integer request;
+    private Integer id;
+    private String name;
+    private String description;
+    private boolean available;
+    private Integer owner;
+    private Integer request;
 }

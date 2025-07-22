@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(of = {"id"})
 public class User {
-    Integer id;
-    String name;
-    String email;
+    private Integer id;
+    private String name;
+    private String email;
 }
