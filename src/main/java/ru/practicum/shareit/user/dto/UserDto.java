@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Null;
@@ -11,9 +12,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+
 public class UserDto {
     @Null(groups = Create.class, message = "ID не должен быть задан при создании")
-    private Integer id;
+    private Long id;
 
     @NotBlank(groups = {Create.class}, message = "Имя не может быть пустым")
     private String name;

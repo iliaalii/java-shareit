@@ -65,6 +65,18 @@ public class ErrorHandler {
         return new ErrorResponse("Отсутствует обязательный заголовок: ", e.getHeaderName());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAvailabilityException(AvailabilityException e) {
+        return new ErrorResponse("Ошибка доступности вещи: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(ValidationException e) {
+        return new ErrorResponse("Ошибка валидации: ", e.getMessage());
+    }
+
     public record ErrorResponse(String error, String description) {
     }
 }
