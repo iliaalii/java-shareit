@@ -11,6 +11,9 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     ItemDto toItemDto(Item item);
 
     @Mapping(target = "id", source = "item.id")
@@ -23,8 +26,11 @@ public interface ItemMapper {
     @Mapping(target = "id", source = "itemDto.id")
     @Mapping(target = "name", source = "itemDto.name")
     @Mapping(target = "owner", source = "user")
+    @Mapping(target = "request", ignore = true)
     Item toItem(ItemDto itemDto, User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "request", ignore = true)
     void updateItem(@MappingTarget Item item, ItemDto itemDto);
 }
