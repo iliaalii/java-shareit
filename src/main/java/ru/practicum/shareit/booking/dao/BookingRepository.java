@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.id = :bookingId " +
@@ -69,4 +67,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     boolean existsByBookerIdAndItemIdAndEndBefore(Long bookerId, Long itemId, LocalDateTime time);
 
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN :itemIds " +
+            "AND b.end < :now ORDER BY b.end DESC")
+    List<Booking> findLastBookings(@Param("itemIds") List<Long> itemIds,
+                                   @Param("now") LocalDateTime now);
+
+    @Query("SELECT b FROM Booking b WHERE b.item.id IN :itemIds " +
+            "AND b.start > :now ORDER BY b.start ASC")
+    List<Booking> findNextBookings(@Param("itemIds") List<Long> itemIds,
+                                   @Param("now") LocalDateTime now);
 }

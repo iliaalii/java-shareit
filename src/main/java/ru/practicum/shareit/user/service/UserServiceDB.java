@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,27 +18,30 @@ import java.util.List;
 @Slf4j
 public class UserServiceDB implements UserService {
     private final UserRepository userStorage;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto add(UserDto userDto) {
         log.info("Обработка запросна на добавление нового пользователя");
-        User user = UserMapper.toUser(userDto);
-        return UserMapper.toUserDto(userStorage.save(user));
+        User user = userMapper.toUser(userDto);
+        return userMapper.toUserDto(userStorage.save(user));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto find(Long id) {
         log.info("Обработка на поиск пользователя");
         User user = userStorage.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
-        return UserMapper.toUserDto(user);
+        return userMapper.toUserDto(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> findAll() {
         log.info("Обработка запроса на поиск всех пользователей");
         return userStorage.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
@@ -47,8 +50,8 @@ public class UserServiceDB implements UserService {
         log.info("Обработка запроса на обновление пользователя {}", id);
         User user = userStorage.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
-        UserMapper.updateUser(user, userDto);
-        return UserMapper.toUserDto(userStorage.save(user));
+        userMapper.updateUser(user, userDto);
+        return userMapper.toUserDto(userStorage.save(user));
     }
 
     @Override

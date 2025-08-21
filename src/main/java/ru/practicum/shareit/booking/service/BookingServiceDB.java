@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +28,7 @@ public class BookingServiceDB implements BookingService {
     private final BookingRepository bookingStorage;
     private final ItemRepository itemStorage;
     private final UserRepository userStorage;
+    private final BookingMapper bookingMapper;
 
     @Override
     public BookingDto add(BookingDto bookingDto, Long userId) {
@@ -39,9 +40,9 @@ public class BookingServiceDB implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + bookingDto.getItemId() + " не найдена"));
         if (!item.isAvailable()) throw new AvailabilityException("Вещь не доступна для резерва");
 
-        Booking booking = BookingMapper.toBooking(bookingDto, item, booker);
+        Booking booking = bookingMapper.toBooking(bookingDto, item, booker);
         booking.setStatus(Status.WAITING);
-        return BookingMapper.toBookingDto(bookingStorage.save(booking));
+        return bookingMapper.toDTO(bookingStorage.save(booking));
     }
 
     @Override
@@ -63,18 +64,20 @@ public class BookingServiceDB implements BookingService {
             booking.setStatus(Status.REJECTED);
         }
 
-        return BookingMapper.toBookingDto(bookingStorage.save(booking));
+        return bookingMapper.toDTO(bookingStorage.save(booking));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto find(Long userId, Long bookingId) {
         log.info("Обработка запроса поиска бронирования");
         Booking booking = bookingStorage.findByIdAndUserIsBookerOrOwner(bookingId, userId)
                 .orElseThrow(() -> new NotFoundException("Бронирование с id " + bookingId + " не найдено"));
-        return BookingMapper.toBookingDto(booking);
+        return bookingMapper.toDTO(booking);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> findAll(Long userId, String state) {
         log.info("Обработка запроса поиска всех бронирований пользователя, по состоянию: {}", state);
         LocalDateTime now = LocalDateTime.now();
@@ -82,22 +85,23 @@ public class BookingServiceDB implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         return switch (state) {
             case "CURRENT" -> bookingStorage.findCurrentBookings(userId, now)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "PAST" -> bookingStorage.findPastBookings(userId, now)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "FUTURE" -> bookingStorage.findFutureBookings(userId, now)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "WAITING" -> bookingStorage.findByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "REJECTED" -> bookingStorage.findByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "ALL" -> bookingStorage.findByBookerIdOrderByStartDesc(userId)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             default -> throw new ValidationException("Неверный запрос по state");
         };
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> findAllByOwner(Long userId, String state) {
         log.info("Обработка запроса поиска всех бронирований владельца, по состоянию: {}", state);
         LocalDateTime now = LocalDateTime.now();
@@ -105,17 +109,17 @@ public class BookingServiceDB implements BookingService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         return switch (state.toUpperCase()) {
             case "CURRENT" -> bookingStorage.findCurrentByOwner(userId, now)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "PAST" -> bookingStorage.findPastByOwner(userId, now)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "FUTURE" -> bookingStorage.findFutureByOwner(userId, now)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "WAITING" -> bookingStorage.findByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.WAITING)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "REJECTED" -> bookingStorage.findByItemOwnerIdAndStatusOrderByStartDesc(userId, Status.REJECTED)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             case "ALL" -> bookingStorage.findByItemOwnerIdOrderByStartDesc(userId)
-                    .stream().map(BookingMapper::toBookingDto).toList();
+                    .stream().map(bookingMapper::toDTO).toList();
             default -> throw new ValidationException("Неверный запрос по state");
         };
     }
