@@ -1,43 +1,36 @@
 package ru.practicum.shareit.item.mapper;
 
-import lombok.experimental.UtilityClass;
+import org.mapstruct.*;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
-@UtilityClass
-public class ItemMapper {
-    public ItemDto toItemDto(Item item) {
-        if (item == null) return null;
+import java.util.List;
 
-        return new ItemDto(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.isAvailable()
-        );
-    }
+@Mapper(componentModel = "spring")
+public interface ItemMapper {
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    ItemDto toItemDto(Item item);
 
-    public Item toItem(ItemDto itemDto, int userId) {
-        if (itemDto == null) return null;
+    @Mapping(target = "id", source = "item.id")
+    @Mapping(target = "lastBooking", source = "last")
+    @Mapping(target = "nextBooking", source = "next")
+    @Mapping(target = "comments", source = "comments")
+    ItemDto toItemDtoWithDatesAndComments(Item item, BookingDto last, BookingDto next,
+                                          List<CommentDto> comments);
 
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setName(itemDto.getName());
-        item.setDescription(itemDto.getDescription());
-        item.setAvailable(itemDto.getAvailable());
-        item.setOwner(userId);
-        return item;
-    }
+    @Mapping(target = "id", source = "itemDto.id")
+    @Mapping(target = "name", source = "itemDto.name")
+    @Mapping(target = "owner", source = "user")
+    @Mapping(target = "request", ignore = true)
+    Item toItem(ItemDto itemDto, User user);
 
-    public void updateUser(Item item, ItemDto itemDto) {
-        if (itemDto.getName() != null) {
-            item.setName(itemDto.getName());
-        }
-        if (itemDto.getDescription() != null) {
-            item.setDescription(itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() != null) {
-            item.setAvailable(itemDto.getAvailable());
-        }
-    }
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "owner", ignore = true)
+    @Mapping(target = "request", ignore = true)
+    void updateItem(@MappingTarget Item item, ItemDto itemDto);
 }

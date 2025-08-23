@@ -62,7 +62,22 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingHeader(MissingRequestHeaderException e) {
+        log.warn("Отсутствует обязательный заголовок: {}", e.getHeaderName(), e);
         return new ErrorResponse("Отсутствует обязательный заголовок: ", e.getHeaderName());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAvailabilityException(AvailabilityException e) {
+        log.warn("Ошибка доступности вещи: {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка доступности вещи: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(ValidationException e) {
+        log.warn("Ошибка валидации: {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка валидации: ", e.getMessage());
     }
 
     public record ErrorResponse(String error, String description) {

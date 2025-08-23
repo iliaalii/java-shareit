@@ -1,8 +1,10 @@
 package ru.practicum.shareit.user.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -11,45 +13,50 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceDB implements UserService {
     private final UserRepository userStorage;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto add(UserDto userDto) {
         log.info("Обработка запросна на добавление нового пользователя");
-        User user = UserMapper.toUser(userDto);
-        userStorage.checkDuplicateEmail(user.getEmail());
-        return UserMapper.toUserDto(userStorage.add(user));
+        User user = userMapper.toUser(userDto);
+        return userMapper.toUserDto(userStorage.save(user));
     }
 
     @Override
-    public UserDto find(int id) {
+    @Transactional(readOnly = true)
+    public UserDto find(Long id) {
         log.info("Обработка на поиск пользователя");
-        return UserMapper.toUserDto(userStorage.find(id));
+        User user = userStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        return userMapper.toUserDto(user);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> findAll() {
         log.info("Обработка запроса на поиск всех пользователей");
         return userStorage.findAll().stream()
-                .map(UserMapper::toUserDto)
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
     @Override
-    public UserDto update(int id, UserDto userDto) {
+    public UserDto update(Long id, UserDto userDto) {
         log.info("Обработка запроса на обновление пользователя {}", id);
-        userStorage.checkDuplicateEmail(userDto.getEmail());
-        User user = userStorage.find(id);
-        UserMapper.updateUser(user, userDto);
-        return UserMapper.toUserDto(userStorage.update(user));
+        User user = userStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        userMapper.updateUser(user, userDto);
+        return userMapper.toUserDto(userStorage.save(user));
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(Long id) {
         log.info("Обработка запроса на удаление пользователя {}", id);
-        userStorage.delete(id);
+        userStorage.deleteById(id);
     }
 }
