@@ -11,6 +11,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
+    @Named("toItemDto")
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
     @Mapping(target = "comments", ignore = true)
@@ -33,4 +34,12 @@ public interface ItemMapper {
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "request", ignore = true)
     void updateItem(@MappingTarget Item item, ItemDto itemDto);
+
+    @Named("toItemDtoForRequest")
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "ownerId", source = "owner.id")
+    @Mapping(target = "requestId", source = "request.id")
+    ItemDto toItemDtoForRequest(Item item);
 }

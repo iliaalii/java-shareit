@@ -1,9 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,6 +34,13 @@ public class ItemDto {
 
     @Null(groups = ItemDto.Create.class, message = "Не нужно задавать при создании")
     private List<CommentDto> comments;
+
+    @Positive
+    private Long requestId;
+
+    @Positive
+    @Null(groups = ItemDto.Create.class, message = "Не нужно задавать при создании")
+    private Long ownerId;
 
     public interface Create {
     }

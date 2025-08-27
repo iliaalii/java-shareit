@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.model.User;
 @Mapper(componentModel = "spring", uses = {ItemMapper.class, UserMapper.class})
 public interface BookingMapper {
     @Mapping(target = "itemId", ignore = true)
-    @Mapping(target = "item", source = "item")
+    @Mapping(target = "item", source = "item", qualifiedByName = "toItemDto")
     @Mapping(target = "booker", source = "booker")
     @Mapping(target = "status", source = "status")
     BookingDto toDTO(Booking booking);
