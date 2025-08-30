@@ -80,7 +80,7 @@ public class BookingServiceDB implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingDto> findAll(Long userId, String state) {
-        log.info("Обработка запроса поиска всех бронирований пользователя, по состоянию: {}", state);
+        log.info("Обработка запроса поиска всех бронирований пользователя {}, по состоянию: {}",userId, state);
         LocalDateTime now = LocalDateTime.now();
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
