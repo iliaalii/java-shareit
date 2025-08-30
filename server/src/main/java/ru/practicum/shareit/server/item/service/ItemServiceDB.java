@@ -163,9 +163,6 @@ public class ItemServiceDB implements ItemService {
     public List<ItemDto> search(Long userId, String text) {
         log.info("Обработка запроса на поиск пользователем {}", userId);
         if (userStorage.existsById(userId)) {
-            if (text == null || text.isBlank()) {
-                return List.of();
-            }
             return itemStorage.searchAvailableItems(text).stream()
                     .map(itemMapper::toItemDto)
                     .toList();

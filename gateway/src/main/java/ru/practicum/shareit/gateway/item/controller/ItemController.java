@@ -10,6 +10,8 @@ import ru.practicum.shareit.gateway.item.client.ItemClient;
 import ru.practicum.shareit.gateway.item.dto.CommentDto;
 import ru.practicum.shareit.gateway.item.dto.ItemDto;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -49,6 +51,9 @@ public class ItemController {
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Object> search(@RequestHeader(HEADER_USER_ID) @Positive long userId, @RequestParam String text) {
+        if (text == null || text.isBlank()) {
+            ResponseEntity.ok(List.of());
+        }
         return itemClient.search(userId, text);
     }
 

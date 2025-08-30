@@ -36,13 +36,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleUnexpectedExceptions(final Exception e) {
-        log.error("Внутренняя ошибка сервера: {}", e.getMessage());
-        return new ErrorResponse("Внутренняя ошибка сервера", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingHeader(MissingRequestHeaderException e) {
         log.warn("Отсутствует обязательный заголовок: {}", e.getHeaderName(), e);
