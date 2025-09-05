@@ -1,0 +1,52 @@
+package ru.practicum.shareit.server.exception;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+@Slf4j
+public class ErrorHandler {
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(final NotFoundException e) {
+        log.warn("Ошибка поиска объекта: {}", e.getMessage());
+        return new ErrorResponse(
+                "Запрашиваемый объект не найден.",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflictException(final ConflictException e) {
+        log.error("Конфликт при добавлении: {}", e.getMessage());
+        return new ErrorResponse("Конфликт при добавлении", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleUnexpectedExceptions(final Exception e) {
+        log.error("Внутренняя ошибка сервера: {}", e.getMessage());
+        return new ErrorResponse("Внутренняя ошибка сервера", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAvailabilityException(AvailabilityException e) {
+        log.warn("Ошибка доступности вещи: {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка доступности вещи: ", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(ValidationException e) {
+        log.warn("Ошибка валидации: {}", e.getMessage(), e);
+        return new ErrorResponse("Ошибка валидации: ", e.getMessage());
+    }
+
+    public record ErrorResponse(String error, String description) {
+    }
+}
